@@ -1,0 +1,143 @@
+Bài toán xếp ba lô
+Lý thuyết:
+Bài toán xếp ba lô là một bài toán tối ưu trong đó người dùng cần chọn một số vật phẩm từ một tập hợp các vật phẩm có sẵn để xếp vào ba lô. Mục tiêu là tối đa hóa giá trị tổng của các vật phẩm được chọn, trong khi đảm bảo tổng trọng lượng của ba lô không vượt quá trọng lượng tối đa cho phép.
+
+Giải bài toán xếp ba lô bằng quy hoạch động:
+Để giải bài toán xếp ba lô bằng quy hoạch động, ta sẽ sử dụng một ma trận dp có kích thước (n + 1) x (W + 1), trong đó n là số lượng vật phẩm có sẵn và W là trọng lượng tối đa của ba lô. dp[i][j] sẽ là giá trị lớn nhất có thể đạt được bằng cách chọn i vật phẩm trong số n vật phẩm có sẵn và trọng lượng tối đa là j.
+
+Mã nguồn C++ cho giải bài toán xếp ba lô bằng quy hoạch động như sau:
+
+cpp
+Copy code
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Hàm giải bài toán xếp ba lô bằng quy hoạch động
+int knapsackDP(int W, vector<int>& weights, vector<int>& values) {
+    int n = weights.size();
+    vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));
+
+    for (int i = 1; i <= n; ++i) {
+        for (int w = 1; w <= W; ++w) {
+            if (weights[i - 1] <= w) {
+                dp[i][w] = max(dp[i - 1][w], values[i - 1] + dp[i - 1][w - weights[i - 1]]);
+            } else {
+                dp[i][w] = dp[i - 1][w];
+            }
+        }
+    }
+
+    return dp[n][W];
+}
+
+int main() {
+    int W, n;
+    cout << "Nhap suc chua cua ba lo: ";
+    cin >> W;
+    cout << "Nhap so luong vat pham: ";
+    cin >> n;
+
+    vector<int> weights(n);
+    vector<int> values(n);
+
+    cout << "Nhap trong luong va gia tri cua cac vat pham:" << endl;
+    for (int i = 0; i < n; ++i) {
+        cin >> weights[i] >> values[i];
+    }
+
+    int result = knapsackDP(W, weights, values);
+    cout << "Gia tri lon nhat co the dat duoc: " << result << endl;
+
+    return 0;
+}
+Giải thích code giải bài toán xếp ba lô bằng quy hoạch động:
+Hàm knapsackDP: Hàm này giải bài toán xếp ba lô bằng quy hoạch động. Ta sử dụng một ma trận dp có kích thước (n + 1) x (W + 1) để lưu trữ kết quả tính toán. Với mỗi vật phẩm thứ i và trọng lượng w, ta tính dp[i][w] là giá trị lớn nhất có thể đạt được bằng cách chọn i vật phẩm trong số n vật phẩm có sẵn và trọng lượng tối đa là w.
+
+Hàm main: Trong hàm main, người dùng nhập trọng lượng tối đa của ba lô (W) và số lượng vật phẩm (n). Sau đó, người dùng nhập trọng lượng và giá trị của từng vật phẩm. Cuối cùng, chương trình gọi hàm knapsackDP để giải bài toán và in kết quả ra màn hình.
+
+Giải bài toán xếp ba lô bằng phương pháp nhánh cận:
+Để giải bài toán xếp ba lô bằng phương pháp nhánh cận, ta sẽ sử dụng kỹ thuật nhánh cận để tạo ra các giải pháp gần đúng. Trong quá trình duyệt và tạo ra các giải pháp, ta sẽ loại bỏ những giải pháp không tiềm năng và không cần xem xét toàn bộ không gian tìm kiếm.
+
+Mã nguồn C++ cho giải bài toán xếp ba lô bằng phương pháp nhánh cận như sau:
+
+cpp
+Copy code
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Item {
+    int weight;
+    int value;
+};
+
+bool compareItems(Item a, Item b) {
+    return (a.value / a.weight) > (b.value / b.weight);
+}
+
+// Hàm tính tổng giá trị của các vật phẩm đã được chọn
+int calculateValue(vector<Item>& selectedItems) {
+    int totalValue = 0;
+    for (const auto& item : selectedItems) {
+        totalValue += item.value;
+    }
+    return totalValue;
+}
+
+// Hàm nhánh cận giải bài toán xếp ba lô
+void knapsackBranchAndBound(int W, vector<Item>& items, int currentValue, int currentWeight, int& maxValue, vector<Item>& selectedItems, int index) {
+    if (index >= items.size()) {
+        maxValue = max(maxValue, currentValue);
+        return;
+    }
+
+    if (currentWeight + items[index].weight <= W) {
+        selectedItems.push_back(items[index]);
+        knapsackBranchAndBound(W, items, currentValue + items[index].value, currentWeight + items[index].weight, maxValue, selectedItems, index + 1);
+        selectedItems.pop_back();
+    }
+
+    knapsackBranchAndBound(W, items, currentValue, currentWeight, maxValue, selectedItems, index + 1);
+}
+
+// Hàm giải bài toán xếp ba lô bằng phương pháp nhánh cận
+int solveKnapsackBranchAndBound(int W, vector<Item>& items) {
+    int maxValue = 0;
+    vector<Item> selectedItems;
+    knapsackBranchAndBound(W, items, 0, 0, maxValue, selectedItems, 0);
+    return maxValue;
+}
+
+int main() {
+    int W, n;
+    cout << "Nhap suc chua cua ba lo: ";
+    cin >> W;
+    cout << "Nhap so luong vat pham: ";
+    cin >> n;
+
+    vector<Item> items(n);
+
+    cout << "Nhap trong luong va gia tri cua cac vat pham:" << endl;
+    for (int i = 0; i < n; ++i) {
+        cin >> items[i].weight >> items[i].value;
+    }
+
+    sort(items.begin(), items.end(), compareItems);
+
+    int result = solveKnapsackBranchAndBound(W, items);
+    cout << "Gia tri lon nhat co the dat duoc: " << result << endl;
+
+    return 0;
+}
+Giải thích code giải bài toán xếp ba lô bằng phương pháp nhánh cận:
+Hàm compareItems: Đây là một hàm so sánh được sử dụng trong hàm main để sắp xếp các vật phẩm theo giá trị trên đơn vị trọng lượng giảm dần.
+
+Hàm calculateValue: Hàm này tính tổng giá trị của các vật phẩm đã được chọn trong ba lô.
+
+Hàm knapsackBranchAndBound: Đây là hàm thực hiện thuật toán nhánh cận để giải bài toán xếp ba lô. Hàm này sử dụng đệ quy để thử tất cả các trường hợp có thể có. Ta chọn từng vật phẩm và xem xét xem có chọn vật phẩm này hay không, sau đó đi tiếp đến vật phẩm tiếp theo. Trong quá trình duyệt, ta kiểm tra xem giá trị hiện tại có lớn hơn giá trị lớn nhất đã tìm thấy hay không, nếu có, thì cập nhật giá trị lớn nhất.
+
+Hàm solveKnapsackBranchAndBound: Đây là hàm giải bài toán xếp ba lô bằng phương pháp nhánh cận. Hàm này sắp xếp các vật phẩm theo giá trị trên đơn vị trọng lượng giảm dần, sau đó gọi hàm knapsackBranchAndBound để tìm giá trị lớn nhất có thể đạt được.
+
+Hàm main: Trong hàm main, người dùng nhập trọng lượng tối đa của ba lô (W) và số lượng vật phẩm (n). Sau đó, người dùng nhập trọng lượng và giá trị của từng vật phẩm. Tiếp theo, các vật phẩm được sắp xếp theo giá trị trên đơn vị trọng lượng giảm dần và chương trình gọi hàm solveKnapsackBranchAndBound để giải bài toán và in kết quả ra màn hình.

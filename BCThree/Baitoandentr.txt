@@ -1,0 +1,66 @@
+Bài toán người bán hàng (Travelling Salesman Problem - TSP):
+
+Lý thuyết:
+Bài toán yêu cầu tìm chu trình Hamilton ngắn nhất trên đồ thị đầy đủ n đỉnh, trong đó mỗi đỉnh phải được đi qua đúng một lần và cuối cùng quay lại đỉnh xuất phát. Mỗi cạnh trong đồ thị có một trọng số và mục tiêu của bài toán là tìm chu trình Hamilton có tổng trọng số là nhỏ nhất.
+
+Kỹ thuật giải:
+Cả hai kỹ thuật quy hoạch động và nhánh cận đều có thể được áp dụng để giải quyết bài toán người bán hàng. Tuy nhiên, do bài toán có tính chất tối ưu hóa tổng quát, nó thuộc loại bài toán NP-hard, có nghĩa là không có thuật toán hiệu quả nào có thể tìm ra lời giải tối ưu trong thời gian đa thức. Do đó, các giải thuật giải quyết bài toán này thường dựa vào các phương pháp heuristic (tiếp cận hàm heuristics) và các thuật toán metaheuristic như Genetic Algorithm, Simulated Annealing, Ant Colony Optimization, ...
+
+Giải thích chi tiết code giải bài toán người bán hàng sử dụng Dynamic Programming:
+
+c
+Copy code
+#include <stdio.h>
+#include <stdbool.h>
+
+#define N 4 // Số lượng thành phố
+
+int tsp_dp(int graph[N][N], int mask, int pos, int dp[N][1 << N]) {
+    if (mask == (1 << N) - 1) {
+        return graph[pos][0]; // Quay trở về thành phố đầu tiên
+    }
+
+    if (dp[pos][mask] != -1) {
+        return dp[pos][mask];
+    }
+
+    int ans = INT_MAX;
+
+    for (int city = 0; city < N; city++) {
+        if ((mask & (1 << city)) == 0) {
+            int new_mask = mask | (1 << city);
+            int cost = graph[pos][city] + tsp_dp(graph, new_mask, city, dp);
+            ans = (ans < cost) ? ans : cost;
+        }
+    }
+
+    return dp[pos][mask] = ans;
+}
+
+int tsp(int graph[N][N]) {
+    int dp[N][1 << N];
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < (1 << N); j++) {
+            dp[i][j] = -1;
+        }
+    }
+    return tsp_dp(graph, 1, 0, dp);
+}
+
+int main() {
+    int graph[N][N] = {
+        {0, 10, 15, 20},
+        {10, 0, 35, 25},
+        {15, 35, 0, 30},
+        {20, 25, 30, 0}
+    };
+    int min_cost = tsp(graph);
+    printf("Khoảng cách ngắn nhất trong bài toán người bán hàng: %d\n", min_cost);
+    return 0;
+}
+Giải thích code:
+Trong code trên, chúng ta sử dụng kỹ thuật quy hoạch động để giải bài toán người bán hàng. Ma trận graph biểu diễn khoảng cách giữa các thành phố. Trong hàm tsp_dp, chúng ta sử dụng một mảng 2 chiều dp để lưu trữ kết quả của các bài toán con đã giải quyết.
+
+Hàm tsp_dp được sử dụng để tính toán khoảng cách ngắn nhất từ một thành phố đến các thành phố còn lại, dựa trên các bài toán con đã giải quyết trước đó. Ban đầu, ta đặt mask bằng 1, biểu thị rằng thành phố xuất phát đã được đi qua. Sau đó, ta duyệt qua tất cả các thành phố còn lại và tính toán khoảng cách từ thành phố hiện tại đến thành phố tiếp theo. Ta tiếp tục đệ quy với các thành phố tiếp theo cho đến khi đã đi qua tất cả các thành phố. Kết quả của bài toán là khoảng cách ngắn nhất từ thành phố xuất phát đến thành phố cuối cùng và quay trở về thành phố xuất phát.
+
+Hàm tsp được sử dụng để khởi tạo mảng dp và gọi hàm tsp_dp với thành phố xuất phát là thành phố 0. Cuối cùng, kết quả cuối cùng là khoảng cách ngắn nhất trong bài toán người bán hàng và được in ra màn hình.

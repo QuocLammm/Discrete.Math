@@ -1,0 +1,173 @@
+Bài toán lập lịch gia công chi tiết (Scheduling Problem)
+Lý thuyết:
+Bài toán lập lịch gia công chi tiết là một bài toán tối ưu trong lĩnh vực sản xuất và quản lý nguồn lực. Trong bài toán này, ta cần lập lịch thời gian gia công các chi tiết trên các máy móc để tối ưu hóa mục tiêu nào đó, ví dụ như thời gian hoàn thành, chi phí, lợi nhuận, hoặc tối đa hóa hiệu quả sử dụng máy móc.
+
+Giải bài toán lập lịch gia công chi tiết bằng quy hoạch động:
+Để giải bài toán lập lịch gia công chi tiết bằng quy hoạch động, ta cần xác định được công thức trạng thái và công thức chuyển đổi trạng thái. Trong trường hợp đơn giản, ta có thể sử dụng một ma trận dp có kích thước (n + 1) x (m + 1), trong đó n là số lượng chi tiết và m là số lượng máy móc. dp[i][j] sẽ là giá trị tối ưu của việc lập lịch cho i chi tiết đầu tiên trên j máy móc đầu tiên.
+
+Mã nguồn C++ cho giải bài toán lập lịch gia công chi tiết bằng quy hoạch động như sau:
+
+cpp
+Copy code
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Hàm giải bài toán lập lịch gia công chi tiết bằng quy hoạch động
+int schedulingDP(vector<vector<int>>& processingTimes) {
+    int n = processingTimes.size(); // Số lượng chi tiết
+    int m = processingTimes[0].size(); // Số lượng máy móc
+
+    vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= m; ++j) {
+            dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]) + processingTimes[i - 1][j - 1];
+        }
+    }
+
+    return dp[n][m];
+}
+
+int main() {
+    int n, m;
+    cout << "Nhap so luong chi tiet: ";
+    cin >> n;
+    cout << "Nhap so luong may moc: ";
+    cin >> m;
+
+    vector<vector<int>> processingTimes(n, vector<int>(m));
+
+    cout << "Nhap thoi gian gia cong cho tung chi tiet tren moi may moc:" << endl;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> processingTimes[i][j];
+        }
+    }
+
+    int result = schedulingDP(processingTimes);
+    cout << "Thoi gian hoan thanh toi uu: " << result << endl;
+
+    return 0;
+}
+Giải thích code giải bài toán lập lịch gia công chi tiết bằng quy hoạch động:
+Hàm schedulingDP: Hàm này giải bài toán lập lịch gia công chi tiết bằng quy hoạch động. Ta sử dụng một ma trận dp có kích thước (n + 1) x (m + 1) để lưu trữ kết quả tính toán. Với mỗi chi tiết thứ i và máy móc thứ j, ta tính dp[i][j] là thời gian hoàn thành tối ưu của việc lập lịch cho i chi tiết đầu tiên trên j máy móc đầu tiên.
+
+Hàm main: Trong hàm main, người dùng nhập số lượng chi tiết (n) và số lượng máy móc (m). Sau đó, người dùng nhập thời gian gia công cho từng chi tiết trên mỗi máy móc. Cuối cùng, chương trình gọi hàm schedulingDP để giải bài toán và in kết quả ra màn hình.
+
+Giải bài toán lập lịch gia công chi tiết bằng phương pháp nhánh cận:
+Để giải bài toán lập lịch gia công chi tiết bằng phương pháp nhánh cận, ta sẽ sử dụng kỹ thuật nhánh cận để tạo ra các giải pháp gần đúng. Trong quá trình duyệt và tạo ra các giải pháp, ta sẽ loại bỏ những giải pháp không tiềm năng và không cần xem xét toàn bộ không gian tìm kiếm.
+
+Mã nguồn C++ cho giải bài toán lập lịch gia công chi tiết bằng phương pháp nhánh cận như sau:
+
+cpp
+Copy code
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Task {
+    int processingTime;
+    int machineIndex;
+};
+
+bool compareTasks(Task a, Task b) {
+    return a.processingTime > b.processingTime;
+}
+
+// Hàm tính thời gian hoàn thành tối ưu
+int calculateCompletionTime(vector<Task>& scheduledTasks, vector<vector<int>>& processingTimes) {
+    int n = scheduledTasks.size(); // Số lượng chi tiết
+    int m = processingTimes[0].size(); // Số lượng máy móc
+
+    vector<int> machineTimes(m, 0); // Lưu trữ thời gian hoàn thành trên từng máy móc
+
+    for (int i = 0; i < n; ++i) {
+        int taskIndex = scheduledTasks[i].machineIndex;
+        int machineTime = machineTimes[taskIndex];
+        int processingTime = scheduledTasks[i].processingTime;
+        machineTimes[taskIndex] = max(machineTime, machineTime + processingTime);
+    }
+
+    return *max_element(machineTimes.begin(), machineTimes.end());
+}
+
+// Hàm nhánh cận giải bài toán lập lịch gia công chi tiết
+void schedulingBranchAndBound(vector<Task>& tasks, int currentValue, int& minValue, vector<Task>& scheduledTasks) {
+    if (tasks.empty()) {
+        int completionTime = calculateCompletionTime(scheduledTasks, processingTimes);
+        minValue = min(minValue, completionTime);
+        return;
+    }
+
+    for (int i = 0; i < tasks.size(); ++i) {
+        int taskProcessingTime = tasks[i].processingTime;
+        int taskMachineIndex = tasks[i].machineIndex;
+
+        if (currentValue + taskProcessingTime >= minValue) {
+            continue;
+        }
+
+        scheduledTasks.push_back(tasks[i]);
+        tasks.erase(tasks.begin() + i);
+
+        schedulingBranchAndBound(tasks, currentValue + taskProcessingTime, minValue, scheduledTasks);
+
+        tasks.insert(tasks.begin() + i, scheduledTasks.back());
+        scheduledTasks.pop_back();
+    }
+}
+
+// Hàm giải bài toán lập lịch gia công chi tiết bằng phương pháp nhánh cận
+int solveSchedulingBranchAndBound(vector<Task>& tasks, vector<vector<int>>& processingTimes) {
+    int minValue = INT_MAX;
+    vector<Task> scheduledTasks;
+    sort(tasks.begin(), tasks.end(), compareTasks);
+
+    schedulingBranchAndBound(tasks, 0, minValue, scheduledTasks);
+    return minValue;
+}
+
+int main() {
+    int n, m;
+    cout << "Nhap so luong chi tiet: ";
+    cin >> n;
+    cout << "Nhap so luong may moc: ";
+    cin >> m;
+
+    vector<vector<int>> processingTimes(n, vector<int>(m));
+    vector<Task> tasks;
+
+    cout << "Nhap thoi gian gia cong cho tung chi tiet tren moi may moc:" << endl;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> processingTimes[i][j];
+            tasks.push_back({ processingTimes[i][j], j });
+        }
+    }
+
+    int result = solveSchedulingBranchAndBound(tasks, processingTimes);
+    cout << "Thoi gian hoan thanh toi uu: " << result << endl;
+
+    return 0;
+}
+kỹ thuật Quy hoạch động thích hợp cho các bài toán TSP có số lượng đỉnh nhỏ, nơi đảm bảo tính chính xác của giải pháp tối ưu là quan trọng. Trong khi đó, kỹ thuật Nhánh cận phù hợp với bài toán TSP có số lượng đỉnh lớn, nơi ta cần tìm giải pháp gần đúng trong thời gian hợp lý và có thể chấp nhận được sai số nhất định. Tùy vào yêu cầu cụ thể của bài toán và số lượng đỉnh, ta có thể lựa chọn phương pháp giải thuật phù hợp nhất.
+
+
+
+
+
+
+
+
+
+
+Giải thích code giải bài toán lập lịch gia công chi tiết bằng phương pháp nhánh cận:
+Hàm compareTasks: Đây là một hàm so sánh được sử dụng trong hàm main để sắp xếp các công việc theo thời gian gia công giảm dần.
+
+Hàm calculateCompletionTime: Hàm này tính thời gian hoàn thành tối ưu của lịch trình lập công việc trên các máy móc.
+
+Hàm schedulingBranchAndBound: Đây là hàm thực hiện thuật toán nhánh cận để giải bài toán lập lịch gia công chi tiết. Hàm này sử dụng đệ quy để thử tất cả các trường hợp có thể có. Ta chọn từng công việc và xem xét xem có chọn công việc này hay không, sau đó đi tiếp đến công việc tiếp theo. Trong quá trình duyệt, ta kiểm tra xem thời gian hiện tại có nhỏ hơn thời gian nhỏ nhất đã tìm thấy hay không, nếu có, thì cập nhật thời gian nhỏ nhất.
+
+Hàm solveSchedulingBranchAndBound: Đây là hàm giải bài toán lập lịch gia công chi tiết bằng phương pháp nhánh cận. Hàm này sắp xếp các công việc theo thời gian gia công giảm dần và chương trình gọi hàm schedulingBranchAndBound để giải bài toán và tìm ra thời gian hoàn thành tối ưu.

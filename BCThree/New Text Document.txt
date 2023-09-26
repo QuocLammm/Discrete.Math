@@ -1,0 +1,140 @@
+BÁO CÁO TỔNG QUAN VỀ CÁC KỸ THUẬT QUY HOẠCH ĐỘNG VÀ NHÁNH CẬN TRONG GIẢI BÀI TOÁN NGƯỜI BÁN HÀNG
+1. Quy hoạch động (Dynamic Programming)
+Lý thuyết:
+Quy hoạch động là một kỹ thuật giải bài toán bằng cách chia bài toán thành các bài toán con nhỏ hơn và lưu trữ kết quả của các bài toán con này để tránh tính toán lại. Kỹ thuật này phù hợp cho những bài toán có cấu trúc trùng lặp và tính chất con tối ưu, tức là kết quả tối ưu của bài toán lớn có thể được tạo ra bằng cách kết hợp các kết quả tối ưu của các bài toán con.
+
+Ưu điểm:
+Hiệu quả với các bài toán có tính chất con tối ưu và con chồng chất.
+Tối ưu hóa hiệu năng bằng cách lưu trữ kết quả tính toán và sử dụng lại chúng.
+Giải quyết các bài toán tối ưu có nhiều kết quả phụ thuộc vào các bài toán con.
+Nhược điểm:
+Yêu cầu bài toán có tính chất con tối ưu và con chồng chất để sử dụng quy hoạch động.
+Sử dụng không gian bộ nhớ phụ thuộc vào số lượng bài toán con cần lưu trữ, có thể tăng đáng kể nếu bài toán có quá nhiều bài toán con.
+Áp dụng vào bài toán người bán hàng:
+Bài toán người bán hàng (TSP) là một bài toán tối ưu trong đó người bán hàng phải đi qua tất cả các thành phố và quay trở lại thành phố xuất phát sao cho tổng chi phí là nhỏ nhất. Sử dụng kỹ thuật quy hoạch động, ta có thể giải quyết bài toán TSP bằng cách lưu trữ khoảng cách giữa các thành phố và tính toán đường đi ngắn nhất từ thành phố xuất phát tới mỗi thành phố còn lại.
+
+2. Nhánh cận (Branch and Bound)
+Lý thuyết:
+Nhánh cận là một kỹ thuật giải bài toán tối ưu bằng cách tạo ra các giải pháp gần đúng và loại bỏ nhánh (branch) không tiềm năng mà không cần xem xét toàn bộ không gian tìm kiếm. Kỹ thuật này thường được sử dụng cho các bài toán tối ưu không thể giải một cách chính xác trong thời gian hợp lý.
+
+Ưu điểm:
+Hiệu quả cho các bài toán có không gian tìm kiếm lớn.
+Tìm được giải pháp gần đúng trong thời gian tương đối ngắn.
+Loại bỏ các nhánh không tiềm năng từ đầu, giảm số lượng giải pháp không cần thiết.
+Nhược điểm:
+Cần xây dựng hàm đánh giá để đánh giá chất lượng của giải pháp gần đúng.
+Không đảm bảo tìm được giải pháp tối ưu chính xác.
+Khi không có hàm đánh giá tốt, kết quả có thể không chính xác và chưa đáng tin cậy.
+Áp dụng vào bài toán người bán hàng:
+Nhánh cận cũng có thể được áp dụng vào bài toán người bán hàng để tìm giải pháp gần đúng. Ý tưởng là chia nhỏ không gian tìm kiếm bằng cách loại bỏ các tuyến đường không khả thi hoặc không tiềm năng từ đầu. Khi tìm được một giải pháp gần đúng, nó sẽ được sử dụng như một giới hạn tối ưu cho các tuyến đường tiếp theo.
+
+Bài toán người bán hàng - Mã nguồn C++ sử dụng quy hoạch động:
+c
+Copy code
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+const int INF = 1e9;
+
+// Hàm quy hoạch động TSP
+int tsp(vector<vector<int>>& graph, vector<vector<int>>& dp, int mask, int pos) {
+    int n = graph.size();
+    if (mask == (1 << n) - 1) {
+        return graph[pos][0];
+    }
+
+    if (dp[mask][pos] != -1) {
+        return dp[mask][pos];
+    }
+
+    int ans = INF;
+    for (int i = 0; i < n; ++i) {
+        if ((mask & (1 << i)) == 0) {
+            ans = min(ans, graph[pos][i] + tsp(graph, dp, mask | (1 << i), i));
+        }
+    }
+    return dp[mask][pos] = ans;
+}
+
+// Hàm giải bài toán người bán hàng bằng quy hoạch động
+int solveTSP(vector<vector<int>>& graph) {
+    int n = graph.size();
+    vector<vector<int>> dp(1 << n, vector<int>(n, -1));
+    return tsp(graph, dp, 1, 0);
+}
+
+int main() {
+    int n;
+    cout <<
+
+
+
+User
+tiếp tục
+ChatGPT
+Tiếp tục mã nguồn C++ cho bài toán người bán hàng bằng quy hoạch động và đánh giá kết quả:
+
+cpp
+Copy code
+    int n;
+    cout << "Nhap so luong thanh pho: ";
+    cin >> n;
+
+    if (n <= 0) {
+        cout << "So luong thanh pho phai lon hon 0." << endl;
+        return 1;
+    }
+
+    vector<vector<int>> graph(n, vector<int>(n, 0));
+    cout << "Nhap khoang cach giua cac thanh pho (nhap " << INF << " neu khong co duong di):" << endl;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            cin >> graph[i][j];
+        }
+    }
+
+    int result = solveTSP(graph);
+    cout << "Khoang cach ngan nhat can di qua tat ca cac thanh pho: " << result << endl;
+
+    return 0;
+}
+Hàm calculateCost: Hàm này tính tổng chi phí của tuyến đường đi qua các thành phố được lưu trong một vector path. Khoảng cách giữa hai thành phố được lưu trong ma trận graph.
+
+Hàm TSPBranchAndBound: Đây là hàm thực hiện thuật toán nhánh cận để giải bài toán người bán hàng. Hàm này sử dụng phương pháp đệ quy để thử tất cả các tuyến đường đi qua các thành phố chưa đi qua, loại bỏ các tuyến đường không tiềm năng để cải thiện hiệu năng. Nó duyệt qua các thành phố chưa đi qua và thêm các thành phố này vào tuyến đường đi. Nếu tuyến đường đã đi qua tất cả các thành phố, nó tính tổng chi phí và cập nhật minCost nếu tìm thấy tuyến đường tốt hơn. Hàm này sử dụng nhánh cận bằng cách kiểm tra nếu tổng chi phí hiện tại vượt quá minCost thì không tiếp tục thực hiện nhánh này.
+
+Hàm solveTSP: Đây là hàm giải bài toán người bán hàng bằng phương pháp nhánh cận. Hàm này khởi tạo các biến cần thiết và gọi hàm TSPBranchAndBound để tìm tuyến đường ngắn nhất.
+
+Trong hàm main, người dùng nhập số lượng thành phố n. Nếu n <= 0, sẽ in ra thông báo lỗi. Sau đó, người dùng nhập khoảng cách giữa các thành phố và lưu vào ma trận graph. Cuối cùng, chương trình gọi hàm solveTSP để tìm khoảng cách ngắn nhất cần đi qua tất cả các thành phố và in kết quả ra màn hình.
+Giải thích mã nguồn:
+Hàm tsp: Đây là hàm quy hoạch động thực hiện tính toán đường đi ngắn nhất từ một thành phố pos đến tất cả các thành phố còn lại qua một bitmask mask. Bitmask mask dùng để đánh dấu những thành phố đã được thăm qua và tránh việc lặp lại trong quá trình tính toán. Nếu mask bằng (1 << n) - 1, tức là đã đi qua tất cả các thành phố, ta sẽ quay trở về thành phố xuất phát và trả về khoảng cách từ thành phố hiện tại tới thành phố xuất phát.
+
+Hàm solveTSP: Đây là hàm giải bài toán người bán hàng bằng quy hoạch động. Ta khởi tạo một bảng dp với giá trị ban đầu là -1 để lưu trữ kết quả tính toán của các bài toán con. Hàm này sẽ gọi hàm tsp để tính toán đường đi ngắn nhất từ thành phố xuất phát tới tất cả các thành phố còn lại.
+
+Trong hàm main, người dùng nhập số lượng thành phố n. Nếu n <= 0, sẽ in ra thông báo lỗi. Sau đó, người dùng nhập khoảng cách giữa các thành phố và lưu vào ma trận graph. Cuối cùng, chương trình gọi hàm solveTSP để tìm khoảng cách ngắn nhất cần đi qua tất cả các thành phố và in kết quả ra màn hình.
+
+So sánh ưu và nhược điểm của quy hoạch động và nhánh cận:
+Ưu điểm của quy hoạch động:
+
+Hiệu quả với các bài toán có tính chất con tối ưu và con chồng chất.
+Tối ưu hóa hiệu năng bằng cách lưu trữ kết quả tính toán và tái sử dụng chúng.
+Giải quyết các bài toán tối ưu có nhiều kết quả phụ thuộc vào các bài toán con.
+Nhược điểm của quy hoạch động:
+
+Yêu cầu bài toán có tính chất con tối ưu và con chồng chất để sử dụng quy hoạch động.
+Sử dụng không gian bộ nhớ phụ thuộc vào số lượng bài toán con cần lưu trữ, có thể tăng đáng kể nếu bài toán có quá nhiều bài toán con.
+Ưu điểm của nhánh cận:
+
+Hiệu quả với các bài toán có không gian tìm kiếm lớn.
+Tìm được giải pháp gần đúng trong thời gian tương đối ngắn.
+Loại bỏ các nhánh không tiềm năng từ đầu, giảm số lượng giải pháp không cần thiết.
+Nhược điểm của nhánh cận:
+
+Cần xây dựng hàm đánh giá để đánh giá chất lượng của giải pháp gần đúng.
+Không đảm bảo tìm được giải pháp tối ưu chính xác.
+Khi không có hàm đánh giá tốt, kết quả có thể không chính xác và chưa đáng tin cậy.
+Tổng kết:
+Quy hoạch động và nhánh cận là hai kỹ thuật quan trọng để giải quyết các bài toán tối ưu. Mỗi kỹ thuật có ưu và nhược điểm riêng, và lựa chọn kỹ thuật phù hợp phụ thuộc vào tính chất của bài toán cũng như yêu cầu thời gian và không gian của bài toán.
+
+Trong bài toán người bán hàng, cả hai kỹ thuật đều có thể được áp dụng. Kỹ thuật quy hoạch động phù hợp với các bài toán có số lượng thành phố nhỏ, trong khi kỹ thuật nhánh cận phù hợp với các bài toán có số lượng thành phố lớn và không gian tìm kiếm lớn. Cả hai kỹ thuật đều giúp giải quyết bài toán người bán hàng một cách hiệu quả 
